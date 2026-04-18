@@ -50,17 +50,21 @@ namespace GymService
 
     public class FitnessApiService
     {
-        private readonly string _apiKey = "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";
+        HttpClient client;
+
+        public FitnessApiService(HttpClient httpClient)
+        {
+            client = httpClient;
+        }
+        private readonly string _apiKey = "API key";
         private readonly string _model = "openrouter/free";
         private readonly string _url = "https://openrouter.ai/api/v1/chat/completions";
         private readonly string imagesApiKey = "G1sYHukfElnBTHjrbcCCdqJVfXt3pXx0xlbboR3ZlWohf4rTpve22mjN";
         private readonly string googleApiKey = "b0962739196d3279a8e27efe6638abadc2768db625ba628bc87ebd6998131126";
         public async Task<List<Exercise>> GetExercisesForMachineAsync(string machineName)
         {
-            using var client = new HttpClient();
-
             // הגדרת כותרת האימות
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
             // בניית גוף הבקשה
             // אנו מנחים את המודל ב-System Prompt להחזיר *רק* מערך JSON נקי
@@ -91,7 +95,6 @@ namespace GymService
                 }
             };
 
-            // המרה ל-JSON ושליחת הבקשה
             string jsonBody = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
@@ -139,7 +142,8 @@ namespace GymService
     {
         static async Task Main(string[] args)
         {
-            var service = new FitnessApiService();
+            HttpClient client = new HttpClient();
+            var service = new FitnessApiService(client);
             string machineName = "Leg Press";
             Console.WriteLine($"Exercises for machine: {machineName}\n");
             List<Exercise> legPressExercises = await service.GetExercisesForMachineAsync(machineName);
@@ -245,7 +249,7 @@ namespace GymService
         static async Task<List<string>> GetGoogleVideos(string query)
         {
             //https://serpapi.com/google-videos-api
-            String apiKey = "b0962739196d3279a8e27efe6638abadc2768db625ba628bc87ebd6998131126";
+            String apiKey = "api_key";
             Hashtable ht = new Hashtable();
             ht.Add("engine", "google_videos");
             ht.Add("q", query);
